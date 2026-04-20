@@ -1,47 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>John-Nmap-AI Tool</title>
+    <title>John-Nmap-AI Pro Tool</title>
     <style>
-        body { font-family: monospace; background: #0a0e27; color: #0f0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #111; padding: 20px; border-radius: 10px; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; background: #222; color: #0f0; border: 1px solid #0f0; }
-        button { cursor: pointer; background: #0f0; color: #000; font-weight: bold; }
-        pre { background: #000; padding: 10px; overflow-x: auto; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; background: #0a0e27; color: #0f0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: #0f0f1a; padding: 20px; border-radius: 15px; border: 1px solid #0f0; }
+        h1, h2 { color: #0f0; text-shadow: 0 0 5px #0f0; margin-bottom: 20px; }
+        h1 { text-align: center; font-size: 2.5em; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        .card { background: #1a1a2e; padding: 20px; border-radius: 10px; border-left: 4px solid #0f0; }
+        input, select, textarea, button { width: 100%; padding: 12px; margin: 10px 0; background: #0a0a15; color: #0f0; border: 1px solid #0f0; border-radius: 5px; font-family: monospace; }
+        button { background: #0f0; color: #000; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        button:hover { background: #0a0; transform: scale(1.02); }
+        pre { background: #000; padding: 15px; overflow-x: auto; border-radius: 5px; border: 1px solid #0f0; white-space: pre-wrap; }
+        .result-box { margin-top: 20px; }
+        .badge { display: inline-block; padding: 5px 10px; background: #0f0; color: #000; border-radius: 5px; font-size: 0.8em; margin-right: 10px; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .loading { animation: blink 1s infinite; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🔥 john-nmap-ai 🔥</h1>
-    <h2>Escaneo Nmap + IA</h2>
-    <form action="/scan" method="post" id="scanForm">
-        <input type="text" name="target" placeholder="Ej: 192.168.1.0/24" required>
-        <button type="submit">Escanear con IA</button>
-    </form>
-    <div id="result"></div>
-
-    <h2>John the Ripper + IA</h2>
-    <form action="/crack" method="post" id="crackForm">
-        <input type="text" name="hash_text" placeholder="Hash MD5: 5f4dcc3b5aa765d61d8327deb882cf99" required>
-        <input type="text" name="wordlist" placeholder="Ruta a wordlist (ej: /usr/share/wordlists/rockyou.txt)">
-        <button type="submit">Crackear con John</button>
-    </form>
-    <div id="crackResult"></div>
+    <h1>🔐 john-nmap-ai 🔐</h1>
+    <p style="text-align: center; color: #ff0;">⚠️ Solo para pruebas en redes autorizadas ⚠️</p>
+    
+    <div class="grid">
+        <!-- Escaneo Nmap + IA -->
+        <div class="card">
+            <h2>📡 Escaneo Nmap con IA</h2>
+            <form id="scanForm">
+                <input type="text" name="target" placeholder="Ej: 192.168.1.0/24, 8.8.8.8" required>
+                <button type="submit">🚀 Escanear y Analizar con IA</button>
+            </form>
+            <div id="scanResult" class="result-box"></div>
+        </div>
+        
+        <!-- John the Ripper + IA -->
+        <div class="card">
+            <h2>🔓 John the Ripper + IA</h2>
+            <form id="crackForm">
+                <textarea name="hash_text" placeholder="Hash: 5f4dcc3b5aa765d61d8327deb882cf99" required rows="2"></textarea>
+                <select name="hash_type">
+                    <option value="auto">🔍 Auto-detect</option>
+                    <option value="raw-md5">MD5</option>
+                    <option value="raw-sha1">SHA1</option>
+                    <option value="raw-sha256">SHA256</option>
+                    <option value="nt">NTLM</option>
+                </select>
+                <input type="file" name="wordlist" accept=".txt" required>
+                <button type="submit">💀 Crackear con IA</button>
+            </form>
+            <div id="crackResult" class="result-box"></div>
+        </div>
+    </div>
+    
+    <!-- Generador de PDF -->
+    <div class="card" style="margin-top: 20px;">
+        <h2>📄 Generar Reporte PDF</h2>
+        <button id="generatePDF">📑 Exportar a PDF con análisis IA</button>
+        <div id="pdfResult"></div>
+    </div>
 </div>
+
 <script>
+    async function showLoading(elementId, show) {
+        const element = document.getElementById(elementId);
+        if (show) element.innerHTML = '<div class="loading">⏳ Procesando con IA local...</div>';
+        else if (element.innerHTML.includes('Procesando')) element.innerHTML = '';
+    }
+    
     document.getElementById('scanForm').onsubmit = async(e) => {
         e.preventDefault();
+        await showLoading('scanResult', true);
         const formData = new FormData(e.target);
         const res = await fetch('/scan', { method: 'POST', body: formData });
         const data = await res.json();
-        document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        
+        let html = '<h3>📊 Resultados:</h3><pre>' + JSON.stringify(data.scan_results, null, 2) + '</pre>';
+        html += '<h3>⚠️ Vulnerabilidades:</h3><pre>' + data.vulnerabilities.join('\n') + '</pre>';
+        html += '<h3>🤖 Análisis de IA:</h3><pre>' + data.ia_analysis + '</pre>';
+        
+        document.getElementById('scanResult').innerHTML = html;
+        window.currentScanData = data;
+        await showLoading('scanResult', false);
     };
+    
     document.getElementById('crackForm').onsubmit = async(e) => {
         e.preventDefault();
+        await showLoading('crackResult', true);
         const formData = new FormData(e.target);
         const res = await fetch('/crack', { method: 'POST', body: formData });
         const data = await res.json();
-        document.getElementById('crackResult').innerHTML = `<pre>Contraseña: ${data.cracked_password}</pre>`;
+        
+        let html = `<h3>🔑 Resultado:</h3><pre>Contraseña: ${data.cracked_password}</pre>`;
+        html += `<h3>💡 Sugerencia IA:</h3><pre>${data.ia_suggestion}</pre>`;
+        
+        document.getElementById('crackResult').innerHTML = html;
+        await showLoading('crackResult', false);
+    };
+    
+    document.getElementById('generatePDF').onclick = async() => {
+        if (!window.currentScanData) {
+            alert('Primero realiza un escaneo');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('scan_data', JSON.stringify(window.currentScanData));
+        const res = await fetch('/generate-pdf', { method: 'POST', body: formData });
+        const data = await res.json();
+        document.getElementById('pdfResult').innerHTML = `<a href="${data.pdf_url}" target="_blank">📥 Descargar PDF generado por IA</a>`;
     };
 </script>
 </body>
