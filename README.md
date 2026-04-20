@@ -1,2 +1,6 @@
-# john-nmap-ai
-Herramienta de seguridad ofensiva con interfaz web que integra Nmap, John the Ripper e inteligencia artificial para análisis de vulnerabilidades y optimización de ataques de diccionario. Uso educativo y autorizado únicamente.
+## 🚀 Instalación completa
+
+### 1. Instalar dependencias del sistema
+```bash
+sudo apt update
+sudo apt install nmap john python3-pip -y
