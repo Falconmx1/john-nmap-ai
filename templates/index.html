@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>John-Nmap-AI Tool</title>
+    <style>
+        body { font-family: monospace; background: #0a0e27; color: #0f0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: #111; padding: 20px; border-radius: 10px; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; background: #222; color: #0f0; border: 1px solid #0f0; }
+        button { cursor: pointer; background: #0f0; color: #000; font-weight: bold; }
+        pre { background: #000; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔥 john-nmap-ai 🔥</h1>
+    <h2>Escaneo Nmap + IA</h2>
+    <form action="/scan" method="post" id="scanForm">
+        <input type="text" name="target" placeholder="Ej: 192.168.1.0/24" required>
+        <button type="submit">Escanear con IA</button>
+    </form>
+    <div id="result"></div>
+
+    <h2>John the Ripper + IA</h2>
+    <form action="/crack" method="post" id="crackForm">
+        <input type="text" name="hash_text" placeholder="Hash MD5: 5f4dcc3b5aa765d61d8327deb882cf99" required>
+        <input type="text" name="wordlist" placeholder="Ruta a wordlist (ej: /usr/share/wordlists/rockyou.txt)">
+        <button type="submit">Crackear con John</button>
+    </form>
+    <div id="crackResult"></div>
+</div>
+<script>
+    document.getElementById('scanForm').onsubmit = async(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const res = await fetch('/scan', { method: 'POST', body: formData });
+        const data = await res.json();
+        document.getElementById('result').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    };
+    document.getElementById('crackForm').onsubmit = async(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const res = await fetch('/crack', { method: 'POST', body: formData });
+        const data = await res.json();
+        document.getElementById('crackResult').innerHTML = `<pre>Contraseña: ${data.cracked_password}</pre>`;
+    };
+</script>
+</body>
+</html>
